@@ -1,12 +1,14 @@
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
+import sys
+
 BOT_TOKEN = os.getenv("TOKEN")
 WEBHOOK_URL = os.getenv("WEBHOOK_URL")
 
 if not BOT_TOKEN or not WEBHOOK_URL:
     print("Error: BOT_TOKEN o WEBHOOK_URL not setted")
-    return
+    sys.exit(0)
 
 class Command:
     def __init__(self, cmd):
@@ -16,6 +18,7 @@ class Command:
         self.message = ''
 
     def set(self):
+        print('setting')
         if self.root == 'cal':
             if len(self.cmd) > 1:
                 self.action = self.cmd[1]
