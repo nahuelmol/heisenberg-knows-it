@@ -5,8 +5,8 @@ BOT_TOKEN = os.getenv("TOKEN")
 WEBHOOK_URL = os.getenv("WEBHOOK_URL")
 
 if not BOT_TOKEN or not WEBHOOK_URL:
-        print("Error: BOT_TOKEN o WEBHOOK_URL not setted")
-        return
+    print("Error: BOT_TOKEN o WEBHOOK_URL not setted")
+    return
 
 class Command:
     def __init__(self, cmd):
@@ -46,7 +46,7 @@ app.add_handler(CommandHandler('cal', switch))
 #app.run_polling()
 
 app.run_webhook(
-    listen="8.0.0.0",
+    listen="0.0.0.0",
     port=int(os.getenv("PORT", "5000")),
     url_path=BOT_TOKEN,
     webhook_url=f"{WEBHOOK_URL}/{BOT_TOKEN}",
