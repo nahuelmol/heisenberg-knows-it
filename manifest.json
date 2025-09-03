@@ -1,3 +1,4 @@
 {
-    "transfer": true
+    "transfer": true,
+    "file": "water_potability.csv"
 }

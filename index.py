@@ -1,8 +1,8 @@
 from telegram import Update
-from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
+from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, MessageHandler, filters
 
 from dotenv import load_dotenv
-from actions.actions import make_request, explore, take_from_mani
+from actions.actions import make_request, explore, take, insert, get_data
 
 import sys
 import os
@@ -43,37 +43,46 @@ class Command:
                 msg = explore('act')
                 self.message = msg
             elif self.action == 'end':
-                msg = explore('def')
+                msg = explore('end')
                 self.message = msg
             elif self.action == 'ch':
                 msg = explore('state')
+                self.message = msg
+            elif self.action == 'cols':
+                msg = get_data('cols')
                 self.message = msg
             else:
                 self.message = 'not recognized action'
         else:
             self.message = 'not recognized cmd'
 
-async def switch(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    trans = take_from_mani('transfer')
-    if trans == True:
-        if update.message.document:
-            doc = update.message.document
-            if "mime_type" in doc:
-                if doc.mime_type == 'text/csv':
-                    file = await context.bot.get_file(doc.file_id)
-                    file_path = f'{doc.file_name}'
-                    await file.download_to_drive(file_path)
-                print('transference done')
+async def handle_document(update: Update, context):
+    trans = take('transfer')
+    if trans == True and update.message.document:
+        doc = update.message.document
+        if doc.mime_type == 'text/csv':
+            file = await context.bot.get_file(doc.file_id)
+            filepath = f'{doc.file_name}'
+            insert('file', filepath)
+            await file.download_to_drive(filepath)
+        await update.message.reply_text("file uploaded")
+    
 
-    string_cmd = update.message.text.split(" ")
-    cmd = Command(string_cmd)
+async def caller(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    string = update.message.text.split(" ")
+    cmd = Command(string)
     cmd.set()
     cmd.execute()
 
     await update.message.reply_text(f'{cmd.message}')
 
 app = ApplicationBuilder().token(BOT_TOKEN).build()
-app.add_handler(CommandHandler('cal', switch))
+
+cal_handler = CommandHandler('cal', caller)
+doc_handler = MessageHandler(filters.Document.ALL, handle_document)
+
+app.add_handler(cal_handler)
+app.add_handler(doc_handler)
 
 if ENV == 'development':
     app.run_polling()
