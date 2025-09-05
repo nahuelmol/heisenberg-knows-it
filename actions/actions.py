@@ -29,6 +29,18 @@ def get_data(target):
         for col in data.columns:
             dt = data[col].dtype
             msg = '{}\n{} -> {}'.format(msg, col, dt)
+    elif target == 'typs':
+        cats = data.select_dtypes(include=['object', 'category', 'string']).columns
+        nums = data.select_dtypes(include=['int32', 'float32', 'int64', 'float64']).columns
+        msg = '\tcategorical:'
+        for each in cats:
+            msg = '{}\n{}'.format(msg, each)
+        msg = '{}\n\tnumerical:'
+        for each in nums:
+            msg = '{}\n{}'.format(msg, each)
+    elif target == 'dims':
+        cols, labs = data.shape
+        msg = 'cols: {}\nlabs: {}'.format(cols, labs)
     else:
         msg = 'target not recognized'
 
